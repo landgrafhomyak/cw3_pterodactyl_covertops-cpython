@@ -1,0 +1,1 @@
+https://github.com/LandgrafHomyak/cw3_kamikadze_bot-cpython/releases/download/v0.0.0rc0/cw3_kamikadze_bot-0.0rc0-py3-none-any.whl
