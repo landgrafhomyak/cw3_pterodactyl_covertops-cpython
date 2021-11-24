@@ -116,7 +116,6 @@ class KamikadzeBot:
         return loop.create_task(self.run())
 
     async def run(self):
-        asyncio.create_task(self.__reset())
         await self.__dp.start_polling()
 
     async def __grant_token(self, msg: Message):
@@ -140,10 +139,6 @@ class KamikadzeBot:
         else:
             await msg.reply(f"<code>{data[1]} \u2694\ufe0f{data[2]}</code>", parse_mode="html")
 
-    async def __reset(self):
-        while True:
-            await asyncio.sleep(3600 * 8 + 120 - round(datetime.now().timestamp() - 6 * 3600) % (3600 * 8))
-            self.__current_battle.clear()
 
     async def __button(self, msg: Message):
         await msg.reply("<b>Отряд суицидников (<u>0\u2694\ufe0f</u>):</b>", parse_mode="html", reply_markup=InlineKeyboardMarkup(row_width=1, inline_keyboard=[[InlineKeyboardButton(text="Сдохнуть", callback_data="add")]]))
