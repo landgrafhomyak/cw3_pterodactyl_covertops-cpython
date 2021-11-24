@@ -239,16 +239,19 @@ class KamikadzeBot:
             if mm is None:
                 continue
             u = await self.__db.get_user(int(mm.group(2)))
-            try:
-                pr = await self.__cwapi_client.ask(RequestProfileRequest(token=u[0]))
-            except ForbiddenError:
-                pings.append(f"<a href='tg://user?id={mm.group(2)}'>{u[1]}</a> (пидор)")
-            except ApiException as exc:
-                print(exc.raw, file=sys.stderr)
-                return True
+            if u is None:
+                pings.append(f"<a href='tg://user?id={mm.group(2)}'>нонейм</a> (пидор)")
             else:
-                if pr.action != Action.Conflict:
-                    pings.append(f"<a href='tg://user?id={mm.group(2)}'>{u[1]}</a>")
+                try:
+                    pr = await self.__cwapi_client.ask(RequestProfileRequest(token=u[0]))
+                except ForbiddenError:
+                    pings.append(f"<a href='tg://user?id={mm.group(2)}'>{u[1]}</a> (пидор)")
+                except ApiException as exc:
+                    print(exc.raw, file=sys.stderr)
+                    return True
+                else:
+                    if pr.action != Action.Conflict:
+                        pings.append(f"<a href='tg://user?id={mm.group(2)}'>{u[1]}</a>")
 
         for q in range(0, len(pings), 3):
             await msg.reply("\n".join(pings[q:q + 3]), parse_mode="html")
