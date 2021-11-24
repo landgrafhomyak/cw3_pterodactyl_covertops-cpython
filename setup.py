@@ -4,10 +4,10 @@ setup(
     name="cw3_kamikadze_bot",
     py_modules=["cw3_kamikadze_bot"],
     description="Bot for managing covert operations in Chat Wars",
-    version="1.0rc1",
+    version="1.0rc2",
     author="Andrew Golovashevich",
     url="https://LandgrafHomyak.github.io/cw3_pterpdactyl_covertops-cpython/",
-    download_url="https://github.com/LandgrafHomyak/cw3_pterpdactyl_covertops-cpython/releases/tag/1.0rc1",
+    download_url="https://github.com/LandgrafHomyak/cw3_pterpdactyl_covertops-cpython/releases/tag/1.0rc2",
     python_requires=">=3.8, <3.12",
     install_requires=[
         "aiogram",

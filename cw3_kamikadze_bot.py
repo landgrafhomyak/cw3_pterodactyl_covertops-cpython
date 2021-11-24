@@ -107,6 +107,7 @@ class KamikadzeBot:
         self.__dp.register_message_handler(self.__get_me, commands=["me"])
         self.__dp.register_message_handler(self.__button, commands=["suicide"])
         self.__dp.register_message_handler(self.__wakeup, commands=["wakeup"])
+        self.__dp.register_message_handler(self.__wakeup_all, commands=["wakeup_all"])
         self.__dp.register_callback_query_handler(self.__add, PrefixCheckFilter("add"))
 
     def start(self, loop=None):
@@ -138,7 +139,6 @@ class KamikadzeBot:
             await msg.reply("Ты слишком сильно любишь жить, чтобы мне была интересна информация про тебя")
         else:
             await msg.reply(f"<code>{data[1]} \u2694\ufe0f{data[2]}</code>", parse_mode="html")
-
 
     async def __button(self, msg: Message):
         await msg.reply("<b>Отряд суицидников (<u>0\u2694\ufe0f</u>):</b>", parse_mode="html", reply_markup=InlineKeyboardMarkup(row_width=1, inline_keyboard=[[InlineKeyboardButton(text="Сдохнуть", callback_data="add")]]))
@@ -223,10 +223,6 @@ class KamikadzeBot:
         if (m := squad_msg_pattern.search(msg.reply_to_message.html_text)) is None:
             return
 
-        atk = int(m.group(1))
-        u = None
-        new_rows = StringIO()
-
         pings = []
 
         for row in filter(bool, (m.group(2) or "").split("\n")):
@@ -247,6 +243,27 @@ class KamikadzeBot:
                 else:
                     if pr.action != Action.Conflict:
                         pings.append(f"<a href='tg://user?id={mm.group(2)}'>{u[1]}</a>")
+
+        for q in range(0, len(pings), 3):
+            await msg.reply("\n".join(pings[q:q + 3]), parse_mode="html")
+
+    async def __wakeup_all(self, msg: Message):
+        if msg.reply_to_message is None:
+            return
+        if (m := squad_msg_pattern.search(msg.reply_to_message.html_text)) is None:
+            return
+
+        pings = []
+
+        for row in filter(bool, (m.group(2) or "").split("\n")):
+            mm = squad_msg_row_pattern.search(row)
+            if mm is None:
+                continue
+            u = await self.__db.get_user(int(mm.group(2)))
+            if u is None:
+                pings.append(f"<a href='tg://user?id={mm.group(2)}'>нонейм</a> (пидор)")
+            else:
+                pings.append(f"<a href='tg://user?id={mm.group(2)}'>{u[1]}</a>")
 
         for q in range(0, len(pings), 3):
             await msg.reply("\n".join(pings[q:q + 3]), parse_mode="html")
