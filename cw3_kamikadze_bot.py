@@ -161,7 +161,7 @@ class KamikadzeBot:
             u = await self.__db.get_user(query.from_user.id)
             if u is None:
                 try:
-                    self.__cwapi_client.ask(CreateAuthCodeRequest(userId=query.from_user.id))
+                    await self.__cwapi_client.ask(CreateAuthCodeRequest(userId=query.from_user.id))
                 except NoSuchUserError:
                     await query.answer("Слабак")
                     await query.message.reply(f"<a href='tg://user?id={query.from_user.id}'>{query.from_user.full_name}</a> ты нонейм", parse_mode="html")
@@ -170,7 +170,7 @@ class KamikadzeBot:
                     return True
 
                 await query.answer("Профиль где?")
-                await query.message.reply(f"<a href='tg://user?id={query.from_user.id}'>{query.from_user.full_name}</a> покажи мне код <u>с банковской карточки</u> который пришёл тебе в игре", parse_mode="html")
+                await query.message.reply(f"<a href='tg://user?id={query.from_user.id}'>{query.from_user.full_name}</a> покажи мне код <s>с банковской карточки</s> который пришёл тебе в игре", parse_mode="html")
                 return True
             try:
                 pr = await self.__cwapi_client.ask(RequestProfileRequest(token=u[0]))
