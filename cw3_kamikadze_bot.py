@@ -44,7 +44,7 @@ class KamikadzeDatabase:
             raise TypeError(f"token must be str (got {type(uid) !r})")
         if not isinstance(name, str):
             raise TypeError(f"name must be str (got {type(uid) !r})")
-        if not isinstance(atk, str):
+        if not isinstance(atk, int):
             raise TypeError(f"atk must be int (got {type(uid) !r})")
 
         async with self.__sf.begin() as c:
@@ -220,6 +220,7 @@ class KamikadzeBot:
         except MessageNotModified:
             pass
 
+
 async def amain(argv):
     engine = create_async_engine(f"postgresql+asyncpg://{argv[2]}:{argv[3]}@{argv[4]}:{argv[5]}/{argv[6]}", )
     db = await KamikadzeDatabase.connect(sessionmaker(engine, class_=AsyncSession))
@@ -227,8 +228,10 @@ async def amain(argv):
     await cwapi_client.connect()
     await KamikadzeBot(argv[1], database=db, cwapi_client=cwapi_client).run()
 
+
 def main(argv):
     asyncio.get_event_loop().run_until_complete(amain(argv))
+
 
 if __name__ == "__main__":
     exit(main(sys.argv))
