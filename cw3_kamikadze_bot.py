@@ -11,6 +11,7 @@ from aiogram.utils.exceptions import MessageNotModified
 from cwapi import AsyncChatWarsApiClient, Server as CWServer
 from cwapi.requests import CreateAuthCodeRequest, GrantTokenRequest, RequestProfileRequest
 from cwapi.responses import ApiException, ForbiddenError, NoSuchUserError
+from cwapi.types import Action
 from sqlalchemy import Table, Column, MetaData, BigInteger, DateTime, Text, select, and_, update
 from sqlalchemy.ext.asyncio import create_async_engine, AsyncSession
 from sqlalchemy.orm import sessionmaker
@@ -105,6 +106,7 @@ class KamikadzeBot:
         self.__dp.register_message_handler(self.__grant_token, AuthCodeFilter())
         self.__dp.register_message_handler(self.__get_me, commands=["me"])
         self.__dp.register_message_handler(self.__button, commands=["suicide"])
+        self.__dp.register_message_handler(self.__wakeup, commands=["wakeup"])
         self.__dp.register_callback_query_handler(self.__add, PrefixCheckFilter("add"))
 
     def start(self, loop=None):
@@ -219,6 +221,37 @@ class KamikadzeBot:
             await query.message.edit_text(f"<b>Отряд суицидников (<u>{atk}\u2694\ufe0f</u>):</b>\n" + new_rows.read(), parse_mode="html", reply_markup=query.message.reply_markup)
         except MessageNotModified:
             pass
+
+    async def __wakeup(self, msg: Message):
+        if msg.reply_to_message is None:
+            return
+        if (m := squad_msg_pattern.search(msg.reply_to_message.html_text)) is None:
+            return
+
+        atk = int(m.group(1))
+        u = None
+        new_rows = StringIO()
+
+        pings = []
+
+        for row in filter(bool, (m.group(2) or "").split("\n")):
+            mm = squad_msg_row_pattern.search(row)
+            if mm is None:
+                continue
+            u = await self.__db.get_user(int(mm.group(2)))
+            try:
+                pr = await self.__cwapi_client.ask(RequestProfileRequest(token=u[0]))
+            except ForbiddenError:
+                pings.append(f"<a href='tg://user?id={mm.group(2)}'>{u[1]}</a> (пидор)")
+            except ApiException as exc:
+                print(exc.raw, file=sys.stderr)
+                return True
+            else:
+                if pr.action != Action.Conflict:
+                    pings.append(f"<a href='tg://user?id={mm.group(2)}'>{u[1]}</a>")
+
+        for q in range(0, len(pings), 3):
+            await msg.reply("\n".join(pings[q:q + 3]), parse_mode="html")
 
 
 async def amain(argv):
