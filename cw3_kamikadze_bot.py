@@ -190,7 +190,7 @@ class KamikadzeBot:
                 else:
                     name = pr.guild.emoji
                 if pr.guild.tag is not None:
-                    name += f"[{pr.guid.tag}]"
+                    name += f"[{pr.guild.tag}]"
             name += pr.userName
 
             await self.__db.set_user(uid=query.from_user.id, token=u[0], name=name, atk=pr.atk)
