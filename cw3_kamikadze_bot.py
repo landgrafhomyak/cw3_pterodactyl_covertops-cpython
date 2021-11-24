@@ -196,7 +196,7 @@ class KamikadzeBot:
             await self.__db.set_user(uid=query.from_user.id, token=u[0], name=name, atk=pr.atk)
 
             new_rows.write(f"<code>{str(pr.atk).rjust(5, ' ')}\u2694\ufe0f</code> <a href='tg://user?id={query.from_user.id}'>{name}</a>\n")
-            atk = atk - neg + u[1]
+            atk = atk - neg + u[2]
 
         for row in filter(bool, (m.group(2) or "").split("\n")):
             mm = squad_msg_row_pattern.search(row)
